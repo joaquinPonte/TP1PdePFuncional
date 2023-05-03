@@ -1,0 +1,7 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "PlantsVSZombies1:lib"
+
+    - path: "./test"
+      component: "PlantsVSZombies1:test:PlantsVSZombies1-test"
