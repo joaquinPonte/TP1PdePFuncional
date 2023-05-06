@@ -49,4 +49,18 @@ especialidad planta | solesQueProduce(planta) /= 0 = "Proveedora"
 esPeligroso:: Zombie -> Bool
 esPeligroso zombie  = cantidadAccesorios(zombie) >= 1 || nivelDeMuerte(zombie) > 10
 
--- 3 A se hace con una funcion que cree la misma linea, con la modificacion de planta o zombie
+agregarPlantaYZombie:: [Planta] -> [Zombie] -> Linea -> Linea
+agregarPlantaYZombie  newPlants newZombies linea = LineaDeDefensa (plantas linea ++ newPlants) (zombies linea ++ newZombies)
+
+-----------------------------------------------------------------------------------------------------------
+totalataquePlantas:: [Planta] -> Number
+totalataquePlantas [] = 0
+totalataquePlantas planta  = (poderDeAtaque.head) planta + (totalataquePlantas.tail) planta
+
+totalMordiscos:: [Zombie] -> Number
+totalMordiscos [] = 0
+totalMordiscos zombie = (dañoPorMordida.head) zombie + (totalMordiscos.tail) zombie
+
+estaEnPeligro:: Linea -> Bool
+estaEnPeligro linea = (not.(==0).totalMordiscos.zombies) linea && (((totalataquePlantas.plantas) linea) < ((totalMordiscos.zombies) linea)) || (((==0).length.filter(not.esPeligroso)) (zombies linea))
+
