@@ -64,3 +64,22 @@ totalMordiscos zombie = (dañoPorMordida.head) zombie + (totalMordiscos.tail) zo
 estaEnPeligro:: Linea -> Bool
 estaEnPeligro linea = (not.(==0).totalMordiscos.zombies) linea && (((totalataquePlantas.plantas) linea) < ((totalMordiscos.zombies) linea)) || (((==0).length.filter(not.esPeligroso)) (zombies linea))
 
+esProveedora:: Planta -> Bool
+esProveedora = (=="Proveedora").especialidad
+
+necesitaSerDefendida:: Linea -> Bool
+necesitaSerDefendida = ((==0).length.filter(not.esProveedora).plantas)
+
+alMenosDos:: [Planta] -> Bool
+alMenosDos plantas = tail plantas /= []
+
+especialidades:: [Planta] -> [[Char]]
+especialidades = map(especialidad)
+
+sonDistintos:: [[Char]] -> Bool
+
+sonDistintos (head:tail)= (head /= (head.tail))
+
+--lineaMixta:: Linea -> Bool
+--lineaMixta linea | (head.especialidades.plantas) linea /= (head.tail.especialidades.plantas) linea = lineaMixta linea1
+--lineaMixta linea =  (`False` elem.(sonDistintos.especialidades.plantas)) linea1
