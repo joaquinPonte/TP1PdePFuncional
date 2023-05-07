@@ -52,7 +52,6 @@ esPeligroso zombie  = cantidadAccesorios(zombie) >= 1 || nivelDeMuerte(zombie) >
 agregarPlantaYZombie:: [Planta] -> [Zombie] -> Linea -> Linea
 agregarPlantaYZombie  newPlants newZombies linea = LineaDeDefensa (plantas linea ++ newPlants) (zombies linea ++ newZombies)
 
------------------------------------------------------------------------------------------------------------
 totalataquePlantas:: [Planta] -> Number
 totalataquePlantas [] = 0
 totalataquePlantas planta  = (poderDeAtaque.head) planta + (totalataquePlantas.tail) planta
@@ -71,15 +70,28 @@ necesitaSerDefendida:: Linea -> Bool
 necesitaSerDefendida = ((==0).length.filter(not.esProveedora).plantas)
 
 alMenosDos:: [Planta] -> Bool
-alMenosDos plantas = tail plantas /= []
+alMenosDos = ((>=2).length)
 
 especialidades:: [Planta] -> [[Char]]
 especialidades = map(especialidad)
 
-sonDistintos:: [[Char]] -> Bool
+distintaEspecialidad:: [Planta] -> Bool
+distintaEspecialidad plantas    | ((<=1).length) plantas = True
+                                | (head.especialidades) plantas /= (((tail.especialidades) plantas) !! 0) = True && (distintaEspecialidad.tail) plantas
+                                | otherwise = False
 
-sonDistintos (head:tail)= (head /= (head.tail))
+lineaMixta:: Linea -> Bool
+lineaMixta linea = (alMenosDos.plantas) linea && (distintaEspecialidad.plantas) linea
 
---lineaMixta:: Linea -> Bool
---lineaMixta linea | (head.especialidades.plantas) linea /= (head.tail.especialidades.plantas) linea = lineaMixta linea1
---lineaMixta linea =  (`False` elem.(sonDistintos.especialidades.plantas)) linea1
+quitarLetras:: Zombie -> Number -> [Char]
+quitarLetras zombie numero = drop numero (nombre zombie)
+
+plantaAtacaZombie:: Planta -> Zombie -> [Char]
+plantaAtacaZombie planta zombie = "Vida Restante: " ++ show ((length.(zombie  `quitarLetras`)) (poderDeAtaque planta))
+
+restarVida:: Planta -> Number -> [Char]
+restarVida planta daño  | ((puntosDeVida planta) - daño) <= 0 = "Vida Restante: 0"
+                        | otherwise = "Vida Restante: " ++ show (((puntosDeVida planta) - daño))
+ 
+zombieAtacaPlanta:: Zombie -> Planta -> [Char]
+zombieAtacaPlanta zombie planta = restarVida planta (dañoPorMordida zombie)
