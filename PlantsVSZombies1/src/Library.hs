@@ -86,12 +86,12 @@ lineaMixta linea = (alMenosDos.plantas) linea && (distintaEspecialidad.plantas) 
 quitarLetras:: Zombie -> Number -> [Char]
 quitarLetras zombie numero = drop numero (nombre zombie)
 
-plantaAtacaZombie:: Planta -> Zombie -> [Char]
-plantaAtacaZombie planta zombie = "Vida Restante: " ++ show ((length.(zombie  `quitarLetras`)) (poderDeAtaque planta))
+plantaAtacaZombie:: Planta -> Zombie -> Zombie
+plantaAtacaZombie planta zombie = UnZombie  ((zombie  `quitarLetras`) (poderDeAtaque planta)) (accesorios zombie) (dañoPorMordida zombie)
 
-restarVida:: Planta -> Number -> [Char]
-restarVida planta daño  | ((puntosDeVida planta) - daño) <= 0 = "Vida Restante: 0"
-                        | otherwise = "Vida Restante: " ++ show (((puntosDeVida planta) - daño))
+restarVida:: Planta -> Number -> Number
+restarVida planta daño  | ((puntosDeVida planta) - daño) <= 0 = 0
+                        | otherwise = ((puntosDeVida planta) - daño)
  
-zombieAtacaPlanta:: Zombie -> Planta -> [Char]
-zombieAtacaPlanta zombie planta = restarVida planta (dañoPorMordida zombie)
+zombieAtacaPlanta:: Zombie -> Planta -> Planta
+zombieAtacaPlanta zombie planta = UnaPlanta (especie planta) ((restarVida planta) (dañoPorMordida zombie)) (solesQueProduce planta) (poderDeAtaque planta)
