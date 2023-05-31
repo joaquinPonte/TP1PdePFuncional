@@ -1,22 +1,14 @@
 module Library where
 import PdePreludat
 
+--PARTE 1 DEL TP
+
+--1)a)
 data Planta = UnaPlanta {
     especie:: [Char],
     puntosDeVida:: Number,
     solesQueProduce:: Number,
     poderDeAtaque:: Number
-}deriving(Show,Eq)
-
-data Zombie = UnZombie {
-    nombre:: [Char],
-    accesorios:: [[Char]],
-    dañoPorMordida:: Number
-}deriving(Show,Eq)
-
-data Linea = LineaDeDefensa {
-    plantas:: [Planta],
-    zombies:: [Zombie]
 }deriving(Show,Eq)
 
 peaShooter = UnaPlanta {especie="PeaShooter", puntosDeVida=5, solesQueProduce=0, poderDeAtaque=2}
@@ -26,14 +18,27 @@ nut = UnaPlanta {especie="Nut", puntosDeVida=100, solesQueProduce=0, poderDeAtaq
 tripleSunflower = UnaPlanta {especie="TripleSunflower", puntosDeVida=7, solesQueProduce=3, poderDeAtaque=0}
 cherryCanon = UnaPlanta {especie="CherryCanon", puntosDeVida=4, solesQueProduce=0, poderDeAtaque=15}
 
+--1)b)
+
+data Zombie = UnZombie {
+    nombre:: [Char],
+    accesorios:: [[Char]],
+    dañoPorMordida:: Number
+}deriving(Show,Eq)
+
 zombieBase = UnZombie {nombre="ZombieBase", accesorios=[], dañoPorMordida=1}
 ballonZombie = UnZombie {nombre="BallonZombie", accesorios=["Globo"], dañoPorMordida=1}
 newspaperZombie = UnZombie {nombre="newspaperZombie", accesorios=["Diario"], dañoPorMordida=2}
 gargantuar = UnZombie {nombre="GargantuarHulkSmashPunyGod", accesorios=["PosteElectrico", "ZombieEnano"], dañoPorMordida=30}
 
-linea1 = LineaDeDefensa {plantas=[sunflower, sunflower, sunflower], zombies=[]}
-linea2 = LineaDeDefensa {plantas=[peaShooter, peaShooter, sunflower, nut], zombies=[zombieBase, newspaperZombie]}
-linea3 = LineaDeDefensa {plantas=[sunflower, peaShooter], zombies=[gargantuar, zombieBase, zombieBase]}
+--2)a)
+
+especialidad:: Planta -> [Char]
+especialidad planta | ((/=0).solesQueProduce) planta = "Proveedora"
+                    | poderDeAtaque(planta) > puntosDeVida(planta) = "Atacante"
+                    | otherwise = "Defensiva"
+
+--2)b)
 
 nivelDeMuerte:: Zombie -> Number
 nivelDeMuerte = (length.nombre)
@@ -41,16 +46,26 @@ nivelDeMuerte = (length.nombre)
 cantidadAccesorios:: Zombie -> Number
 cantidadAccesorios = (length.accesorios)
 
-especialidad:: Planta -> [Char]
-especialidad planta | ((/=0).solesQueProduce) planta = "Proveedora"
-                    | poderDeAtaque(planta) > puntosDeVida(planta) = "Atacante"
-                    | otherwise = "Defensiva"
-
 esPeligroso:: Zombie -> Bool
 esPeligroso zombie  = ((>=1).cantidadAccesorios) zombie || ((>10).nivelDeMuerte) zombie
 
+--3)
+
+data Linea = LineaDeDefensa {
+    plantas:: [Planta],
+    zombies:: [Zombie]
+}deriving(Show,Eq)
+
+linea1 = LineaDeDefensa {plantas=[sunflower, sunflower, sunflower], zombies=[]}
+linea2 = LineaDeDefensa {plantas=[peaShooter, peaShooter, sunflower, nut], zombies=[zombieBase, newspaperZombie]}
+linea3 = LineaDeDefensa {plantas=[sunflower, peaShooter], zombies=[gargantuar, zombieBase, zombieBase]}
+
+--3)a)
+
 agregarPlantaYZombie:: [Planta] -> [Zombie] -> Linea -> Linea
 agregarPlantaYZombie  newPlants newZombies linea = linea {plantas=(plantas linea ++ newPlants),zombies=(zombies linea ++ newZombies)}
+
+--3)b)
 
 totalAtaquePlantas:: [Planta] -> Number
 totalAtaquePlantas = (sum.map (poderDeAtaque))
@@ -61,11 +76,15 @@ totalMordiscos = (sum.map (dañoPorMordida))
 estaEnPeligro:: Linea -> Bool
 estaEnPeligro linea = ((/=0).totalMordiscos.zombies) linea && (((totalAtaquePlantas.plantas) linea) < ((totalMordiscos.zombies) linea)) || ((null.filter(not.esPeligroso)) (zombies linea))
 
+--3)c)
+
 esProveedora:: Planta -> Bool
 esProveedora = (=="Proveedora").especialidad
 
 necesitaSerDefendida:: Linea -> Bool
 necesitaSerDefendida = (not.any (not.esProveedora).plantas)
+
+--4)
 
 alMenosDos:: [Planta] -> Bool
 alMenosDos = ((>=2).length)
@@ -81,11 +100,15 @@ distintaEspecialidad plantas    | ((<=1).length) plantas = True
 lineaMixta:: Linea -> Bool
 lineaMixta linea = (alMenosDos.plantas) linea && (distintaEspecialidad.plantas) linea
 
+--5)a)
+
 quitarLetras:: Zombie -> Number -> [Char]
 quitarLetras zombie numero = drop numero (nombre zombie)
 
---plantaAtacaZombie:: Planta -> Zombie -> Zombie
---plantaAtacaZombie planta zombie = zombie {nombre=((zombie  `quitarLetras`) (poderDeAtaque planta))}
+plantaAtacaZombie:: Planta -> Zombie -> Zombie
+plantaAtacaZombie planta zombie = zombie {nombre=((zombie  `quitarLetras`) (poderDeAtaque planta))}
+
+--5)b)
 
 restarVida:: Planta -> Number -> Number
 restarVida planta daño  | ((puntosDeVida planta) - daño) <= 0 = 0
@@ -112,8 +135,8 @@ zombieAtacaPlanta zombie planta = planta {puntosDeVida=((restarVida planta) (da�
 --2)
 cactus =  UnaPlanta {especie="Cactus", puntosDeVida=9, solesQueProduce=0, poderDeAtaque=0}
 
-plantaAtacaZombie:: Planta -> Zombie -> Zombie
-plantaAtacaZombie planta zombie | ((=="Cactus").especialidad) planta && ((=="Globo").head.accesorios) zombie = zombie {accesorios = ((tail.accesorios) zombie)}
+plantaAtacaZombieMod:: Planta -> Zombie -> Zombie
+plantaAtacaZombieMod planta zombie | ((=="Cactus").especialidad) planta && ((=="Globo").head.accesorios) zombie = zombie {accesorios = ((tail.accesorios) zombie)}
                                 |otherwise= zombie {nombre=((zombie  `quitarLetras`) (poderDeAtaque planta))}
 
 --3)
